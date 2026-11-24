@@ -20,4 +20,4 @@ CATEGORY_VALUES = {
 }
 
 RANDOM_STATE = 42
-THRESHOLD = 0.4  # probability above which we predict "Yes" (churn)
+THRESHOLD = 0.5  # probability above which we predict "Yes" (churn)
