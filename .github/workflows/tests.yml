@@ -18,7 +18,7 @@ jobs:
           cache-dependency-path: requirements.txt
 
       - name: Install packages
-        run: pip install -r requirements.txt pytest httpx
+        run: pip install -r requirements.txt pytest httpx mlflow
 
       - name: Build data and model
         run: |

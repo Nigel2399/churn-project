@@ -1,6 +1,6 @@
 """Step 5 - train, compare models, evaluate, save the best one.  Run:  python -m src.train"""
 import json
-
+import mlflow
 import joblib
 import pandas as pd
 from sklearn.compose import ColumnTransformer
@@ -103,6 +103,21 @@ def main() -> None:
     MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
     joblib.dump(model, MODEL_PATH)
     METRICS_PATH.write_text(json.dumps(metrics, indent=2))
+    mlflow.set_tracking_uri("sqlite:///mlflow.db")
+    mlflow.set_experiment("churn")
+    with mlflow.start_run(run_name=best_name):
+        mlflow.log_params(candidates()[best_name].get_params())
+        mlflow.log_param("model", best_name)
+        mlflow.log_param("threshold", THRESHOLD)
+        mlflow.log_param("n_train", len(X_train))
+        mlflow.log_param("n_test", len(X_test))
+        for name, score in cv_scores.items():
+            mlflow.log_metric(f"cv_roc_auc_{name}", score)
+        for key, value in metrics["test"].items():
+            if key != "confusion_matrix":
+                mlflow.log_metric(f"test_{key}", value)
+        mlflow.log_artifact(str(MODEL_PATH))
+        mlflow.log_artifact(str(METRICS_PATH))
 
     print("\nTest set results:")
     for key, value in metrics["test"].items():
